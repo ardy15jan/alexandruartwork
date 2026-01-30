@@ -1,37 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alexandru Artwork</title>
-    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #FAF3E0; /* Light cream */
+            margin: 0;
+            padding: 20px;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: #D1E8D5; /* Sage green */
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .price {
+            color: #8B6F57; /* Taupe */
+            font-weight: bold;
+        }
+        .discount {
+            color: red;
+        }
+    </style>
+    <title>Art Gallery</title>
 </head>
-
 <body>
-    <header>
-        <canvas id="headerCanvas"></canvas>
-        <h1><small>Welcome to</small> <br> <strong>Alexandru Artwork</strong></h1>
-    </header>
-    <main>
-        <section id="gallery">
-            <!-- Artwork images will be displayed here -->
-        </section>
-        <section id="contact">
-            <h2>Contact Me</h2>
-            <form id="contact-form">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-                <label for="message">Message:</label>
-                <textarea id="message" name="message" required></textarea>
-                <button type="submit">Send</button>
-            </form>
-        </section>
-    </main>
-    <script src="scripts.js"></script>
+    <h1>Art Gallery</h1>
+    <div class="gallery">
+        <div class="card">
+            <h2>Artwork Title 1</h2>
+            <p class="medium">Medium: Oil on Canvas</p>
+            <p class="size">Size: 24\"x36\"</p>
+            <p class="price">$200 <span class="discount">($30 off)</span></p>
+        </div>
+        <div class="card">
+            <h2>Artwork Title 2</h2>
+            <p class="medium">Medium: Acrylic</p>
+            <p class="size">Size: 12\"x12\"</p>
+            <p class="price">$150 <span class="discount">($20 off)</span></p>
+        </div>
+        <!-- More artwork cards can be added here -->
+    </div>
 </body>
-
 </html>
