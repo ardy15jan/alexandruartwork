@@ -37,45 +37,106 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Canvas animation
     const canvas = document.getElementById('headerCanvas');
-    const ctx = canvas.getContext('2d');
+    const context = canvas.getContext('2d');
 
-    // Set canvas size to match the header
-    const header = document.querySelector('header');
-    canvas.width = header.offsetWidth;
-    canvas.height = header.offsetHeight/8;
+    const settings = {
+        dimensions: [1080, 1080],
+        animate: true
+    };
 
-    const gridSize = 8;
-    const noiseScale = 0.01;
-    let time = 0;
+    const params = {
+        cols: 80,
+        rows: 20,
+        scaleMin: 0.01,
+        scaleMax: 2,
+        freq: 0.0015,
+        amp: 0.2,
+        frame: 0,
+        animate: true,
+        lineCap: 'butt',
+        color: { r: 100, g: 110, b: 130 },
+    };
 
-    function drawGrid() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let x = 0; x < canvas.width; x += gridSize) {
-            for (let y = 0; y < canvas.height; y += gridSize) {
-                const angle = noise(x * noiseScale, y * noiseScale, time) * Math.PI * 2;
-                ctx.save();
-                ctx.translate(x + gridSize / 2, y + gridSize / 2);
-                ctx.rotate(angle);
-                ctx.beginPath();
-                ctx.moveTo(-gridSize / 2, 0);
-                ctx.lineTo(gridSize / 2, 0);
-                ctx.strokeStyle = '#00000022';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.restore();
-            }
+    canvas.width = settings.dimensions[0];
+    canvas.height = settings.dimensions[1];
+
+    const simplex = new SimplexNoise();
+
+    function mapRange(value, a, b, c, d) {
+        return c + (d - c) * ((value - a) / (b - a));
+    }
+
+    function draw(frame) {
+        context.fillStyle = 'white';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        const cols = params.cols;
+        const rows = params.rows;
+        const numCells = cols * rows;
+
+        const gridw = canvas.width * 0.8;
+        const gridh = canvas.height * 0.8;
+        const cellw = gridw / cols;
+        const cellh = gridh / rows;
+        const margx = (canvas.width - gridw) / 2;
+        const margy = (canvas.height - gridh) / 2;
+
+        for (let i = 0; i < numCells; i++) {
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+
+            const x = col * cellw;
+            const y = row * cellh;
+            const w = cellw * 0.8;
+            const h = cellh * 0.8;
+
+            const f = params.animate ? frame : params.frame;
+            const n = simplex.noise3D(x, y, f * 10 * params.freq);
+            const angle = n * Math.PI * params.amp;
+            const scale = mapRange(n, -1, 1, params.scaleMin, params.scaleMax);
+
+            context.save();
+            context.translate(x + margx + cellw / 2, y + margy + cellh / 2);
+            context.rotate(angle);
+
+            context.lineWidth = scale;
+            context.lineCap = params.lineCap;
+            context.strokeStyle = `rgb(${params.color.r},${params.color.g},${params.color.b})`;
+
+            context.beginPath();
+            context.moveTo(-w / 2, 0);
+            context.lineTo(w / 2, 0);
+            context.stroke();
+
+            context.restore();
         }
-        time += 0.01;
-        requestAnimationFrame(drawGrid);
     }
 
-    // Simplex Noise function
-    function noise(x, y, z) {
-        // Implementation of a 3D Simplex Noise function
-        // You can use a library like 'simplex-noise' for this
-        // For simplicity, here's a placeholder function
-        return Math.sin(x + y + z);
+    function resizeCanvas() {
+        // Match the canvas size to its displayed size
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+
+        // Redraw or adjust your canvas content as needed
+        draw();
     }
 
-    drawGrid();
+    // Initial resize and draw
+    resizeCanvas();
+
+    // Adjust canvas size on window resize
+    window.addEventListener('resize', resizeCanvas);
+
+    let frame = 0;
+    function animate() {
+        draw(frame);
+        frame += 1;
+        requestAnimationFrame(animate);
+    }
+
+    if (settings.animate) {
+        animate();
+    } else {
+        draw(frame);
+    }
 });
