@@ -3,33 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Alexandru Artwork - A curated collection of contemporary paintings featuring landscapes, urban scenes, and nature.">
+    <title>Alexandru Artwork - Contemporary Art Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <title>Art Gallery</title>
 </head>
 <body>
-    <header>
-        <canvas id="headerCanvas"></canvas>
-        <h1><small>Welcome to</small> <br> <a href="https://alexandruartwork.co.uk"><strong>Alexandru Artwork</strong></a></h1>
+    <!-- Navigation -->
+    <nav class="main-nav" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo" aria-label="Alexandru Artwork home">Alexandru Artwork</a>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#gallery" class="nav-link">Gallery</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Canvas Animation -->
+    <header id="home" class="hero-section">
+        <canvas id="canvas" aria-hidden="true"></canvas>
+        <div class="hero-content">
+            <h1 class="hero-title">Alexandru Artwork</h1>
+            <p class="hero-subtitle">Contemporary Art Gallery</p>
+            <a href="#gallery" class="cta-button" aria-label="View gallery">Explore Collection</a>
+        </div>
+        <div class="scroll-indicator" aria-hidden="true">
+            <span class="scroll-text">Scroll to explore</span>
+            <svg class="scroll-arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+        </div>
     </header>
-    <main>
-        <section id="gallery">
-            <h2>Gallery</h2>
-            <!-- Images can be added here -->
-        </section>
-        <section id="contact">
-            <h2>Contact Me</h2>
-            <form id="contact-form">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-                <label for="message">Message:</label>
-                <textarea id="message" name="message" required></textarea>
-                <button type="submit">Send</button>
-            </form>
-        </section>
-    </main>
-    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.min.js"></script>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">About the Artist</h2>
+                <div class="title-underline"></div>
+            </div>
+            <div class="about-content">
+                <p class="about-text">
+                    Welcome to Alexandru Artwork, where contemporary artistry meets timeless beauty.
+                    Each piece in this collection tells a unique story, capturing moments of tranquility,
+                    urban energy, and natural wonder through masterful brushwork and vibrant color palettes.
+                </p>
+                <p class="about-text">
+                    From serene coastal sunsets to bustling city scenes, the artwork explores the
+                    intersection of light, color, and emotion, inviting viewers to pause and immerse
+                    themselves in the beauty of everyday moments transformed into extraordinary visual experiences.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Gallery</h2>
+                <div class="title-underline"></div>
+                <p class="section-description">A curated collection of contemporary paintings</p>
+            </div>
+            <div id="gallery-grid" class="gallery-grid" role="list">
+                <!-- Gallery items will be dynamically inserted here by scripts.js -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Get In Touch</h2>
+                <div class="title-underline"></div>
+                <p class="section-description">Interested in a piece or have a question? I'd love to hear from you.</p>
+            </div>
+            <div class="contact-content">
+                <form id="contact-form" class="contact-form" novalidate>
+                    <div class="form-group">
+                        <label for="name" class="form-label">Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            class="form-input"
+                            required
+                            aria-required="true"
+                            placeholder="Your name"
+                        >
+                        <span class="form-error" aria-live="polite"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-input"
+                            required
+                            aria-required="true"
+                            placeholder="your.email@example.com"
+                        >
+                        <span class="form-error" aria-live="polite"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea
+                            id="message"
+                            name="message"
+                            class="form-input form-textarea"
+                            rows="5"
+                            required
+                            aria-required="true"
+                            placeholder="Your message..."
+                        ></textarea>
+                        <span class="form-error" aria-live="polite"></span>
+                    </div>
+                    <button type="submit" class="submit-button">Send Message</button>
+                    <div id="form-status" class="form-status" role="status" aria-live="polite"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p class="footer-text">&copy; <span id="current-year"></span> Alexandru Artwork. All rights reserved.</p>
+            <p class="footer-text">alexandruartwork.co.uk</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
     <script src="scripts.js"></script>
 </body>
 </html>
