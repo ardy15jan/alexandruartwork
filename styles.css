@@ -433,6 +433,50 @@ section {
     opacity: 0.9;
 }
 
+/* Price and size details - shown on tap */
+.gallery-details {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all var(--transition-base);
+}
+
+.gallery-item.active .gallery-details {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.gallery-size,
+.gallery-price {
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.gallery-size {
+    color: var(--color-text-light);
+    opacity: 0.8;
+}
+
+.gallery-price {
+    color: var(--color-accent-light);
+    font-weight: 600;
+}
+
+/* Keep overlay visible when active (tapped) */
+.gallery-item.active .gallery-overlay {
+    opacity: 1;
+}
+
+.gallery-item.active .gallery-overlay-content {
+    transform: translateY(0);
+}
+
 /* ========================================
    Contact Section
    ======================================== */
