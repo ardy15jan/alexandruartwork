@@ -110,9 +110,9 @@ function initializeCanvasAnimation() {
     let time = 0;
 
     const config = {
-        particleCount: 120,
+        particleCount: 160,
         connectionDistance: 100,
-        particleSize: 2,
+        particleSize: 2.5,
         speed: 0.3,
         noiseScale: 0.003,
         noiseStrength: 2,
@@ -120,7 +120,7 @@ function initializeCanvasAnimation() {
         fadeColor: { r: 255, g: 255, b: 255 },
         interactionRadius: 400,
         repulsionStrength: 32,
-        attractionStrength: 26
+        attractionStrength: 22
     };
 
     // Extended canvas offset (connectionDistance beyond visible area)
@@ -132,7 +132,8 @@ function initializeCanvasAnimation() {
         x: 0,
         y: 0,
         prevX: 0,
-        prevY: 0
+        prevY: 0,
+        dragDistance: 0  // Track distance since last trail ripple
     };
 
     class Particle {
@@ -223,12 +224,21 @@ function initializeCanvasAnimation() {
         constructor(x, y, type) {
             this.x = x;
             this.y = y;
-            this.type = type; // 'push' or 'pull'
+            this.type = type; // 'push', 'pull', or 'trail'
             this.radius = 0;
-            this.maxRadius = Math.max(canvas.width, canvas.height);
-            this.speed = type === 'push' ? 6 : 5;
-            this.waveWidth = 80; // Width of the wave band
-            this.strength = type === 'push' ? 1 : 0.6;
+
+            // Trail ripples are smaller and weaker
+            if (type === 'trail') {
+                this.maxRadius = 300;
+                this.speed = 4;
+                this.waveWidth = 50;
+                this.strength = 0.4;
+            } else {
+                this.maxRadius = Math.max(canvas.width, canvas.height);
+                this.speed = type === 'push' ? 6 : 5;
+                this.waveWidth = 80;
+                this.strength = type === 'push' ? 1 : 0.6;
+            }
         }
 
         update() {
@@ -387,6 +397,7 @@ function initializeCanvasAnimation() {
         interaction.y = coords.y;
         interaction.prevX = coords.x;
         interaction.prevY = coords.y;
+        interaction.dragDistance = 0;
 
         // Create push ripple
         ripples.push(new Ripple(coords.x, coords.y, 'push'));
@@ -399,6 +410,18 @@ function initializeCanvasAnimation() {
         interaction.prevY = interaction.y;
         interaction.x = coords.x;
         interaction.y = coords.y;
+
+        // Calculate distance moved
+        const dx = coords.x - interaction.prevX;
+        const dy = coords.y - interaction.prevY;
+        const moved = Math.sqrt(dx * dx + dy * dy);
+        interaction.dragDistance += moved;
+
+        // Spawn trail ripple every 60 pixels of drag
+        if (interaction.dragDistance > 60) {
+            ripples.push(new Ripple(coords.x, coords.y, 'trail'));
+            interaction.dragDistance = 0;
+        }
     }
 
     function handleEnd() {
@@ -413,7 +436,7 @@ function initializeCanvasAnimation() {
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
                 if (distance < config.interactionRadius * 1.5 && distance > 0) {
-                    const force = (1 - distance / (config.interactionRadius * 1.5)) * config.attractionStrength;
+                    const force = (1 - distance / (config.interactionRadius * 1.2)) * config.attractionStrength;
                     particle.vx -= (dx / distance) * force * 0.3;
                     particle.vy -= (dy / distance) * force * 0.3;
                 }
