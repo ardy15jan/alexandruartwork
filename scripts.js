@@ -3,9 +3,13 @@ const artworks = [
     { title: 'Balcony Flowers', src: 'assets/paintings/balcony-flowers.jpg', description: 'A vibrant display of blooming flowers on a sunlit balcony', price: '£450', size: '60 × 80 cm' },
     { title: 'Balcony Table', src: 'assets/paintings/balcony-table.jpg', description: 'An intimate corner scene with elegant table setting', price: '£380', size: '50 × 70 cm' },
     { title: 'Fall', src: 'assets/paintings/fall.jpg', description: 'Autumn colors painting the landscape in warm hues', price: '£520', size: '70 × 90 cm' },
+    { title: 'Field with Cows', src: 'assets/paintings/field-with-cows.jpg', description: 'Pastoral countryside scene with grazing cattle', price: '£580', size: '70 × 100 cm' },
     { title: 'Flower Café', src: 'assets/paintings/flower-cafe.jpg', description: 'A charming café adorned with beautiful floral arrangements', price: '£420', size: '55 × 75 cm' },
+    { title: 'London', src: 'assets/paintings/london.jpg', description: 'The vibrant energy of London captured in watercolour', price: '£620', size: '75 × 95 cm' },
     { title: 'Porto Bridge', src: 'assets/paintings/porto-bridge.jpg', description: 'The iconic bridge spanning across the Douro River', price: '£650', size: '80 × 100 cm' },
     { title: 'Sea Sunset', src: 'assets/paintings/sea-sunset.jpg', description: 'Golden hour reflections on calm ocean waters', price: '£480', size: '60 × 90 cm' },
+    { title: 'Turkey Boat', src: 'assets/paintings/turkey-boat.jpg', description: 'Traditional boat resting on turquoise Turkish waters', price: '£540', size: '65 × 85 cm' },
+    { title: 'Water Lilies', src: 'assets/paintings/water-lillies.jpg', description: 'Serene pond with floating water lilies', price: '£490', size: '60 × 80 cm' },
     { title: 'Well Street Kitchen', src: 'assets/paintings/well-street-kitchen.jpg', description: 'Urban life captured in a bustling kitchen scene', price: '£550', size: '65 × 85 cm' }
 ];
 
@@ -87,16 +91,6 @@ function createGalleryItem(artwork, index) {
     imageContainer.appendChild(img);
     imageContainer.appendChild(overlay);
     item.appendChild(imageContainer);
-
-    // Add tap/click handler to toggle details
-    item.addEventListener('click', () => {
-        // Remove active from all other items
-        document.querySelectorAll('.gallery-item.active').forEach(el => {
-            if (el !== item) el.classList.remove('active');
-        });
-        // Toggle active on this item
-        item.classList.toggle('active');
-    });
 
     return item;
 }
@@ -490,13 +484,4 @@ const observer = new IntersectionObserver((entries) => {
 document.addEventListener('DOMContentLoaded', () => {
     const galleryItems = document.querySelectorAll('.gallery-item');
     galleryItems.forEach(item => observer.observe(item));
-});
-
-// Close gallery details when clicking outside
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.gallery-item')) {
-        document.querySelectorAll('.gallery-item.active').forEach(el => {
-            el.classList.remove('active');
-        });
-    }
 });

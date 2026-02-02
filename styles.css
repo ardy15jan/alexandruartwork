@@ -126,11 +126,18 @@ a {
 }
 
 .nav-logo {
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-text-light);
-    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo-img {
+    height: 50px;
+    width: auto;
+    transition: opacity var(--transition-base);
+}
+
+.nav-logo:hover .nav-logo-img {
+    opacity: 0.8;
 }
 
 .nav-menu {
@@ -433,7 +440,7 @@ section {
     opacity: 0.9;
 }
 
-/* Price and size details - shown on tap */
+/* Price and size details - shown on hover/tap */
 .gallery-details {
     display: flex;
     justify-content: center;
@@ -441,14 +448,6 @@ section {
     margin-top: var(--spacing-sm);
     padding-top: var(--spacing-sm);
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all var(--transition-base);
-}
-
-.gallery-item.active .gallery-details {
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .gallery-size,
@@ -466,15 +465,6 @@ section {
 .gallery-price {
     color: var(--color-accent-light);
     font-weight: 600;
-}
-
-/* Keep overlay visible when active (tapped) */
-.gallery-item.active .gallery-overlay {
-    opacity: 1;
-}
-
-.gallery-item.active .gallery-overlay-content {
-    transform: translateY(0);
 }
 
 /* ========================================
@@ -623,6 +613,10 @@ section {
 
     .nav-link {
         font-size: 0.85rem;
+    }
+
+    .nav-logo-img {
+        height: 40px;
     }
 
     .hero-title {
