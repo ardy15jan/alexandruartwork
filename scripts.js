@@ -100,10 +100,12 @@ function initializeCanvasAnimation() {
     const canvas = document.getElementById('canvas');
     if (!canvas) return;
 
+    const container = canvas.parentElement;
     const ctx = canvas.getContext('2d');
     const simplex = new SimplexNoise();
 
     let particles = [];
+    let ripples = [];
     let animationId;
     let time = 0;
 
@@ -114,8 +116,23 @@ function initializeCanvasAnimation() {
         speed: 0.3,
         noiseScale: 0.003,
         noiseStrength: 2,
-        baseColor: { r: 187, g: 148, b: 87 }, // Gold accent color
-        fadeColor: { r: 255, g: 255, b: 255 }  // White
+        baseColor: { r: 187, g: 148, b: 87 },
+        fadeColor: { r: 255, g: 255, b: 255 },
+        interactionRadius: 300,
+        repulsionStrength: 16,
+        attractionStrength: 16
+    };
+
+    // Extended canvas offset (connectionDistance beyond visible area)
+    const extend = config.connectionDistance;
+
+    // Interaction state
+    const interaction = {
+        active: false,
+        x: 0,
+        y: 0,
+        prevX: 0,
+        prevY: 0
     };
 
     class Particle {
@@ -126,6 +143,8 @@ function initializeCanvasAnimation() {
         reset() {
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height;
+            this.homeX = this.x;
+            this.homeY = this.y;
             this.vx = 0;
             this.vy = 0;
             this.life = Math.random() * 0.5 + 0.5;
@@ -148,12 +167,32 @@ function initializeCanvasAnimation() {
             this.vx += noiseX * config.noiseStrength * 0.01;
             this.vy += noiseY * config.noiseStrength * 0.01;
 
+            // Interaction forces
+            if (interaction.active) {
+                const dx = this.x - interaction.x;
+                const dy = this.y - interaction.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < config.interactionRadius && distance > 0) {
+                    // Repulsion force - push particles away
+                    const force = (1 - distance / config.interactionRadius) * config.repulsionStrength;
+                    this.vx += (dx / distance) * force * 0.1;
+                    this.vy += (dy / distance) * force * 0.1;
+
+                    // Wind effect from drag
+                    const windX = interaction.x - interaction.prevX;
+                    const windY = interaction.y - interaction.prevY;
+                    this.vx += windX * 0.1 * (1 - distance / config.interactionRadius);
+                    this.vy += windY * 0.1 * (1 - distance / config.interactionRadius);
+                }
+            }
+
             // Damping
             this.vx *= 0.98;
             this.vy *= 0.98;
 
             // Limit velocity
-            const maxSpeed = config.speed;
+            const maxSpeed = config.speed * 3;
             const speed = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
             if (speed > maxSpeed) {
                 this.vx = (this.vx / speed) * maxSpeed;
@@ -163,7 +202,7 @@ function initializeCanvasAnimation() {
             this.x += this.vx;
             this.y += this.vy;
 
-            // Wrap around edges
+            // Wrap around edges (using full canvas including extended area)
             if (this.x < 0) this.x = canvas.width;
             if (this.x > canvas.width) this.x = 0;
             if (this.y < 0) this.y = canvas.height;
@@ -176,6 +215,66 @@ function initializeCanvasAnimation() {
             ctx.arc(this.x, this.y, config.particleSize, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(${config.baseColor.r}, ${config.baseColor.g}, ${config.baseColor.b}, ${alpha})`;
             ctx.fill();
+        }
+    }
+
+    class Ripple {
+        constructor(x, y, type) {
+            this.x = x;
+            this.y = y;
+            this.type = type; // 'push' or 'pull'
+            this.radius = 0;
+            this.maxRadius = Math.max(canvas.width, canvas.height);
+            this.speed = type === 'push' ? 6 : 5;
+            this.waveWidth = 80; // Width of the wave band
+            this.strength = type === 'push' ? 1 : 0.6;
+        }
+
+        update() {
+            this.radius += this.speed;
+            return this.radius < this.maxRadius;
+        }
+
+        // Apply wave force to a particle
+        applyToParticle(particle) {
+            const dx = particle.x - this.x;
+            const dy = particle.y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Check if particle is within the wave band
+            const distanceFromWave = distance - this.radius;
+
+            if (Math.abs(distanceFromWave) < this.waveWidth) {
+                // Sinusoidal wave shape - particles oscillate as wave passes
+                const wavePhase = (distanceFromWave / this.waveWidth) * Math.PI;
+                const waveForce = Math.sin(wavePhase) * this.strength;
+
+                // Decay based on how far the wave has traveled
+                const decay = 1 - (this.radius / this.maxRadius);
+
+                // Direction: outward for push, inward for pull
+                if (distance > 0) {
+                    const forceMultiplier = waveForce * decay * 2;
+                    particle.vx += (dx / distance) * forceMultiplier;
+                    particle.vy += (dy / distance) * forceMultiplier;
+                }
+            }
+        }
+
+        // Affect flowing curves with same wave pattern
+        getDisplacement(x, y) {
+            const dx = x - this.x;
+            const dy = y - this.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const distanceFromWave = distance - this.radius;
+
+            if (Math.abs(distanceFromWave) < this.waveWidth) {
+                const wavePhase = (distanceFromWave / this.waveWidth) * Math.PI;
+                const waveForce = Math.sin(wavePhase);
+                const decay = 1 - (this.radius / this.maxRadius);
+                return waveForce * decay * 15 * this.strength;
+            }
+            return 0;
         }
     }
 
@@ -196,7 +295,6 @@ function initializeCanvasAnimation() {
                 if (distance < config.connectionDistance) {
                     const alpha = (1 - distance / config.connectionDistance) * 0.3;
 
-                    // Create gradient for connection
                     const gradient = ctx.createLinearGradient(
                         particles[i].x, particles[i].y,
                         particles[j].x, particles[j].y
@@ -231,7 +329,14 @@ function initializeCanvasAnimation() {
                     c * 0.5,
                     time * 0.3
                 );
-                const y = yOffset + noise * amplitude;
+
+                // Add ripple displacement
+                let rippleDisplacement = 0;
+                ripples.forEach(ripple => {
+                    rippleDisplacement += ripple.getDisplacement(x, yOffset + noise * amplitude);
+                });
+
+                const y = yOffset + noise * amplitude + rippleDisplacement;
 
                 if (x === 0) {
                     ctx.moveTo(x, y);
@@ -248,14 +353,90 @@ function initializeCanvasAnimation() {
     }
 
     function resizeCanvas() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+
+        // Extend canvas beyond visible area
+        canvas.width = containerWidth + extend * 2;
+        canvas.height = containerHeight + extend * 2;
+
+        // Position canvas with negative offset
+        canvas.style.position = 'absolute';
+        canvas.style.left = -extend + 'px';
+        canvas.style.top = -extend + 'px';
+        canvas.style.width = canvas.width + 'px';
+        canvas.style.height = canvas.height + 'px';
+    }
+
+    function getCanvasCoords(e) {
+        const rect = container.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        // Add extend offset since canvas is positioned with negative margin
+        return {
+            x: clientX - rect.left + extend,
+            y: clientY - rect.top + extend
+        };
+    }
+
+    function handleStart(e) {
+        const coords = getCanvasCoords(e);
+        interaction.active = true;
+        interaction.x = coords.x;
+        interaction.y = coords.y;
+        interaction.prevX = coords.x;
+        interaction.prevY = coords.y;
+
+        // Create push ripple
+        ripples.push(new Ripple(coords.x, coords.y, 'push'));
+    }
+
+    function handleMove(e) {
+        if (!interaction.active) return;
+        const coords = getCanvasCoords(e);
+        interaction.prevX = interaction.x;
+        interaction.prevY = interaction.y;
+        interaction.x = coords.x;
+        interaction.y = coords.y;
+    }
+
+    function handleEnd() {
+        if (interaction.active) {
+            // Create pull ripple and attract particles back
+            ripples.push(new Ripple(interaction.x, interaction.y, 'pull'));
+
+            // Apply attraction force to nearby particles
+            particles.forEach(particle => {
+                const dx = particle.x - interaction.x;
+                const dy = particle.y - interaction.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < config.interactionRadius * 1.5 && distance > 0) {
+                    const force = (1 - distance / (config.interactionRadius * 1.5)) * config.attractionStrength;
+                    particle.vx -= (dx / distance) * force * 0.3;
+                    particle.vy -= (dy / distance) * force * 0.3;
+                }
+            });
+        }
+        interaction.active = false;
     }
 
     function draw() {
         // Clear with fade effect for trails
         ctx.fillStyle = 'rgba(26, 26, 46, 0.15)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Update ripples and apply wave forces to particles
+        ripples = ripples.filter(ripple => {
+            const alive = ripple.update();
+            if (alive) {
+                // Apply ripple wave to all particles
+                particles.forEach(particle => {
+                    ripple.applyToParticle(particle);
+                });
+            }
+            return alive;
+        });
 
         // Draw flowing curves in background
         drawFlowingCurves();
@@ -289,6 +470,15 @@ function initializeCanvasAnimation() {
     window.addEventListener('resize', () => {
         resizeCanvas();
     });
+
+    // Mouse/touch interaction
+    container.addEventListener('mousedown', handleStart);
+    container.addEventListener('mousemove', handleMove);
+    container.addEventListener('mouseup', handleEnd);
+    container.addEventListener('mouseleave', handleEnd);
+    container.addEventListener('touchstart', handleStart, { passive: true });
+    container.addEventListener('touchmove', handleMove, { passive: true });
+    container.addEventListener('touchend', handleEnd);
 
     // Pause animation when page is not visible to save resources
     document.addEventListener('visibilitychange', () => {
