@@ -368,7 +368,6 @@ function initializeContactForm() {
 
         // Get form data
         const formData = new FormData(form);
-        const data = Object.fromEntries(formData);
 
         // Show loading state
         const submitButton = form.querySelector('.submit-button');
@@ -377,14 +376,20 @@ function initializeContactForm() {
         submitButton.disabled = true;
 
         try {
-            // Simulate form submission (replace with actual endpoint)
-            await simulateFormSubmission(data);
+            // Submit to Formspree
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
 
-            // Show success message
-            showFormStatus('Thank you for your message! I will get back to you soon.', 'success');
-            form.reset();
+            if (response.ok) {
+                showFormStatus('Thank you for your message! I will get back to you soon.', 'success');
+                form.reset();
+            } else {
+                throw new Error('Form submission failed');
+            }
         } catch (error) {
-            // Show error message
             showFormStatus('Something went wrong. Please try again later.', 'error');
         } finally {
             submitButton.textContent = originalButtonText;
@@ -449,14 +454,6 @@ function showFormStatus(message, type) {
     const statusElement = document.getElementById('form-status');
     statusElement.textContent = message;
     statusElement.className = `form-status ${type}`;
-}
-
-// Simulate form submission (replace with actual API call)
-function simulateFormSubmission(data) {
-    return new Promise((resolve) => {
-        console.log('Form data:', data);
-        setTimeout(resolve, 1500);
-    });
 }
 
 // Update footer year
