@@ -111,7 +111,7 @@ function initializeCanvasAnimation() {
 
     const config = {
         particleCount: 160,
-        connectionDistance: 100,
+        connectionDistance: 160,
         particleSize: 2.5,
         speed: 0.3,
         noiseScale: 0.003,
