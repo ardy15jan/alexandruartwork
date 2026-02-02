@@ -108,8 +108,8 @@ function initializeCanvasAnimation() {
     let time = 0;
 
     const config = {
-        particleCount: 80,
-        connectionDistance: 150,
+        particleCount: 100,
+        connectionDistance: 100,
         particleSize: 2,
         speed: 0.3,
         noiseScale: 0.003,
@@ -250,7 +250,6 @@ function initializeCanvasAnimation() {
     function resizeCanvas() {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
-        initParticles();
     }
 
     function draw() {
@@ -279,6 +278,7 @@ function initializeCanvasAnimation() {
     }
 
     resizeCanvas();
+    initParticles();
 
     // Initial clear
     ctx.fillStyle = 'rgba(26, 26, 46, 1)';
