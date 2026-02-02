@@ -107,6 +107,8 @@ a {
     background-color: transparent;
     transition: all var(--transition-base);
     padding: var(--spacing-sm) 0;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .main-nav.nav-scrolled {
@@ -199,6 +201,8 @@ a {
     text-align: center;
     color: var(--color-text-light);
     padding: var(--spacing-md);
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .hero-title {
@@ -245,6 +249,8 @@ a {
     display: flex;
     flex-direction: column;
     align-items: center;
+    user-select: none;
+    -webkit-user-select: none;
     gap: var(--spacing-xs);
     color: var(--color-text-light);
     opacity: 0.8;

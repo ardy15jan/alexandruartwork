@@ -110,7 +110,7 @@ function initializeCanvasAnimation() {
     let time = 0;
 
     const config = {
-        particleCount: 100,
+        particleCount: 120,
         connectionDistance: 100,
         particleSize: 2,
         speed: 0.3,
@@ -118,9 +118,9 @@ function initializeCanvasAnimation() {
         noiseStrength: 2,
         baseColor: { r: 187, g: 148, b: 87 },
         fadeColor: { r: 255, g: 255, b: 255 },
-        interactionRadius: 300,
-        repulsionStrength: 16,
-        attractionStrength: 16
+        interactionRadius: 400,
+        repulsionStrength: 32,
+        attractionStrength: 26
     };
 
     // Extended canvas offset (connectionDistance beyond visible area)
@@ -148,6 +148,7 @@ function initializeCanvasAnimation() {
             this.vx = 0;
             this.vy = 0;
             this.life = Math.random() * 0.5 + 0.5;
+            this.size = Math.random() * config.particleSize + 0.5;
         }
 
         update() {
@@ -212,7 +213,7 @@ function initializeCanvasAnimation() {
         draw() {
             const alpha = this.life * 0.8;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, config.particleSize, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(${config.baseColor.r}, ${config.baseColor.g}, ${config.baseColor.b}, ${alpha})`;
             ctx.fill();
         }
